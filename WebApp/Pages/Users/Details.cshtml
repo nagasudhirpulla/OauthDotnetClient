@@ -1,0 +1,40 @@
+﻿@page
+@model WebApp.Pages.Users.DetailsModel
+@{
+    ViewData["Title"] = "My Details";
+}
+
+<div class="container">
+    <h3>My Details</h3>
+
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td>Name</td>
+            <td>@Model.CUser.Username</td>
+        </tr>
+        <tr>
+            <td>DisplayName</td>
+            <td>@Model.CUser.DisplayName</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>@Model.CUser.Email</td>
+        </tr>
+        <tr>
+            <td>Phone</td>
+            <td>@Model.CUser.PhoneNumber</td>
+        </tr>
+        <tr>
+            <td>Role</td>
+            <td>@Model.CUser.UserRole</td>
+        </tr>
+        <tr>
+            <td>Date Of Birth</td>
+            <td>@Model.CUser.Dob</td>
+        </tr>
+        <tr>
+            <td>Active?</td>
+            <td>@(Model.CUser.IsActive?"Yes":"No")</td>
+        </tr>
+    </table>
+</div>

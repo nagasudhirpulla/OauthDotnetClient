@@ -1,0 +1,38 @@
+﻿@page
+@model WebApp.Areas.Identity.Pages.Account.VerifyCodeModel
+@{
+    ViewData["Title"] = "Verify Login Code";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            <input asp-for="RememberMe" type="hidden" />
+            <input asp-for="Provider" type="hidden" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Input.LoginCode"></label>
+                <input asp-for="Input.LoginCode" class="form-control" />
+                <span asp-validation-for="Input.LoginCode" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.RememberMachine"></label>
+                <input asp-for="Input.RememberMachine" class="form-control" />
+                <span asp-validation-for="Input.RememberMachine" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Verify Code</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

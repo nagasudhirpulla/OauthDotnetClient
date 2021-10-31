@@ -39,7 +39,7 @@ namespace KeycloakClient
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            // add sms settings from app config
+            // add identity server settings from app config
             IdServerConfig idSrvConfig = new();
             Configuration.Bind("IdServer", idSrvConfig);
 

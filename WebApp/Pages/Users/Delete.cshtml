@@ -1,0 +1,23 @@
+﻿@page
+@model WebApp.Pages.Users.DeleteModel
+@{
+    ViewData["Title"] = "Delete User";
+}
+
+@if (Model.DUser != null)
+{
+    <div class="row justify-content-center align-items-center">
+        <div class="col col-md-10 col-lg-8 col-xl-6">
+            <h2>@ViewData["Title"]</h2>
+            <hr />
+            <h3>Are you sure you want to delete @Model.DUser.Username ( @Model.DUser.DisplayName , @Model.DUser.Email ) ?</h3>
+            <div>
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="DUser.UserId" />
+                    <input type="submit" value="Delete" class="btn btn-danger" /> |
+                    <a asp-page="/Users/Index">Back to List</a>
+                </form>
+            </div>
+        </div>
+    </div>
+}

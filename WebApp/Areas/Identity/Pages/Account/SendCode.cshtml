@@ -1,0 +1,31 @@
+﻿@page
+@model WebApp.Areas.Identity.Pages.Account.SendCodeModel
+@{
+    ViewData["Title"] = "Send Login Code";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+            <input asp-for="RememberMe" type="hidden" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Input.Provider"></label>
+                <select asp-for="Input.Provider" class="form-control" asp-items="ViewBag.FactorOptions"></select>
+                <span asp-validation-for="Input.Provider" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Send Code</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
