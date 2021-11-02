@@ -94,7 +94,11 @@ namespace WebApp.Areas.Identity.Pages.Account
             }
             else
             {
-                // If user does not have account, create the user
+                // If user does not have account for this external login, create the user
+                // check if a user already exists with this email, if already exists just add external login sign in info and sign in the user
+                // if user does not exits with this email, then create a user and external user login and then sign in the user
+                // while creating the user, get the user name from the external login info claims,
+                // if username already exists or username is null, create a new random username and assign to the new user
                 bool isEmailPresent = info.Principal.HasClaim(c => c.Type == ClaimTypes.Email);
                 string newUname = info.Principal.Identity.Name;
                 if (isEmailPresent && !string.IsNullOrWhiteSpace(newUname))

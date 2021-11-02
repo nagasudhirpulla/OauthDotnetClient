@@ -34,6 +34,7 @@ namespace Application.Users.Commands.CreateUser
             IdentityResult result;
             if (request.Password == null)
             {
+                // password was not passed, hence creating user without a password
                 result = await _userManager.CreateAsync(user);
             }
             else

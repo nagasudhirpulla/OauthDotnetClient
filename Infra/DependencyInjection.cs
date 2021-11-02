@@ -49,6 +49,7 @@ namespace Infra
             services
                 .AddDefaultIdentity<ApplicationUser>(options =>
                 {
+                    options.User.RequireUniqueEmail = true;
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireDigit = true;
                     options.Password.RequireLowercase = true;
@@ -66,13 +67,7 @@ namespace Infra
 
             int sessionCookieLifetimeMins = configuration.GetValue("SessionCookieLifetimeMinutes", 60);
 
-            // Add authentication services and configure cookies
-            services.AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            })
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            services.ConfigureApplicationCookie(options =>
             {
                 // configure login path for return urls
                 // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/identity-configuration?view=aspnetcore-5.0#cookie-settings
@@ -80,7 +75,10 @@ namespace Infra
                 options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(sessionCookieLifetimeMins);
-            })
+            });
+
+            // Add authentication services and configure cookies
+            services.AddAuthentication()
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, idSrvConfig.DisplayName, options =>
             {
                 options.RequireHttpsMetadata = idSrvConfig.RequireHttps;
