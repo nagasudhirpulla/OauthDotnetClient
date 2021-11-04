@@ -63,7 +63,6 @@ namespace WebApp.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
         {
-            // TODO complete this
             returnUrl ??= Url.Content("~/");
             if (remoteError != null)
             {
@@ -76,6 +75,7 @@ namespace WebApp.Areas.Identity.Pages.Account
                 ErrorMessage = "Error loading external login information.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
+
 
             // Sign in the user with this external login provider if the user already has a login.
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
@@ -94,45 +94,58 @@ namespace WebApp.Areas.Identity.Pages.Account
             }
             else
             {
-                // If user does not have account for this external login, create the user
-                // check if a user already exists with this email, if already exists just add external login sign in info and sign in the user
-                // if user does not exits with this email, then create a user and external user login and then sign in the user
-                // while creating the user, get the user name from the external login info claims,
-                // if username already exists or username is null, create a new random username and assign to the new user
+                // TODO check this
                 bool isEmailPresent = info.Principal.HasClaim(c => c.Type == ClaimTypes.Email);
-                string newUname = info.Principal.Identity.Name;
-                if (isEmailPresent && !string.IsNullOrWhiteSpace(newUname))
+                if (isEmailPresent)
                 {
-                    string newUsrEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
-                    IdentityResult createUsrResult = await _mediator.Send(new CreateUserCommand()
+                    string usrEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
+                    //check if user already exists with this email
+                    var usr = await _userManager.FindByEmailAsync(usrEmail);
+                    if (usr == null)
                     {
-                        Username = newUname,
-                        Email = newUsrEmail
-                    });
-                    if (createUsrResult.Succeeded)
-                    {
-                        _logger.LogInformation($"Created new account for {newUname}");
+                        string oAuthUname = info.Principal.Identity.Name;
+                        string newUname = oAuthUname;
+                        if ((await _userManager.FindByNameAsync(oAuthUname)) != null)
+                        {
+                            // create a unique username if already exists
+                            newUname = Guid.NewGuid().ToString();
+                        }
+                        // create user if not present
 
-                        result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
-                        if (result.Succeeded)
+                        IdentityResult createUsrResult = await _mediator.Send(new CreateUserCommand()
                         {
-                            _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
-                            return LocalRedirect(returnUrl).WithSuccess("New account is created, Welcome...");
-                        }
-                        if (result.RequiresTwoFactor)
+                            Username = oAuthUname,
+                            Email = usrEmail
+                        });
+
+                        if (createUsrResult.Succeeded)
                         {
-                            return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl }).WithSuccess("New account is created, Welcome...");
+                            _logger.LogInformation($"Created new account for {usrEmail} with {oAuthUname} as username");
                         }
-                        if (result.IsLockedOut)
-                        {
-                            return RedirectToPage("./Lockout");
-                        }
+
+                    }
+                    // Add a login (i.e insert a row for the user in AspNetUserLogins table)
+                    _ = await _userManager.AddLoginAsync(usr, info);
+                    // sign in the user again
+                    result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+                        return LocalRedirect(returnUrl);
+                    }
+                    if (result.RequiresTwoFactor)
+                    {
+                        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl });
+                    }
+                    if (result.IsLockedOut)
+                    {
+                        return RedirectToPage("./Lockout");
                     }
                 }
-                // Some issue occured
-                ProviderDisplayName = info.ProviderDisplayName;
-                return Page();
             }
+            // Some issue occured
+            ProviderDisplayName = info.ProviderDisplayName;
+            return Page();
         }
     }
 }
